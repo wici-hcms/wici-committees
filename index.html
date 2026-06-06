@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>WICI — Hospital Committee Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:#0d1117; --surface:#161b22; --surface2:#1c2230; --surface3:#21262d;
+  --border:#30363d; --border2:#3d4452;
+  --teal:#00c9a7; --teal-dim:#007a67; --teal-glow:rgba(0,201,167,0.15);
+  --amber:#f0a500; --amber-dim:#a07000;
+  --red:#f85149; --red-dim:#6e2020;
+  --blue:#58a6ff; --blue-dim:#1a3a5c;
+  --purple:#bc8cff; --purple-dim:#3b2060;
+  --text:#e6edf3; --text2:#8b949e; --text3:#484f58;
+  --font-head:'Playfair Display',serif; --font-body:'IBM Plex Sans',sans-serif; --font-mono:'IBM Plex Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:14px;line-height:1.6;min-height:100vh;overflow-x:hidden}
+
+/* LAYOUT */
+.shell{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:240px;min-width:240px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+/* SIDEBAR */
+.brand{padding:20px 16px 16px;border-bottom:1px solid var(--border)}
+.brand-logo{font-family:var(--font-head);font-size:18px;font-weight:700;color:var(--teal);letter-spacing:0.5px}
+.brand-sub{font-size:10px;color:var(--text2);margin-top:2px;letter-spacing:1.5px;text-transform:uppercase}
+.nav{flex:1;overflow-y:auto;padding:8px 0}
+.nav-section{padding:12px 16px 4px;font-size:10px;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;font-weight:600}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 16px;cursor:pointer;transition:all .15s;color:var(--text2);font-size:13px;border-left:3px solid transparent}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:var(--teal-glow);color:var(--teal);border-left-color:var(--teal)}
+.nav-item .icon{width:16px;text-align:center;opacity:.8}
+.nav-badge{margin-left:auto;background:var(--red-dim);color:var(--red);font-size:10px;padding:1px 6px;border-radius:10px;font-family:var(--font-mono)}
+.sidebar-footer{padding:12px 16px;border-top:1px solid var(--border);font-size:11px;color:var(--text3)}
+
+/* TOPBAR */
+.topbar{height:52px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px;flex-shrink:0}
+.topbar-title{font-family:var(--font-head);font-size:16px;font-weight:600;flex:1}
+.topbar-actions{display:flex;gap:8px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer;font-size:12px;font-family:var(--font-body);font-weight:500;transition:all .15s;white-space:nowrap}
+.btn:hover{border-color:var(--border2);background:var(--surface3)}
+.btn-primary{background:var(--teal-dim);border-color:var(--teal);color:var(--teal)}
+.btn-primary:hover{background:var(--teal);color:#000}
+.btn-danger{border-color:var(--red-dim);color:var(--red)}
+.btn-sm{padding:4px 10px;font-size:11px}
+
+/* PAGE */
+.page{flex:1;overflow-y:auto;padding:24px;display:none}
+.page.active{display:block}
+
+/* CARDS & KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;position:relative;overflow:hidden}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kpi-card.teal::before{background:var(--teal)}
+.kpi-card.amber::before{background:var(--amber)}
+.kpi-card.red::before{background:var(--red)}
+.kpi-card.blue::before{background:var(--blue)}
+.kpi-card.purple::before{background:var(--purple)}
+.kpi-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:8px}
+.kpi-value{font-family:var(--font-mono);font-size:32px;font-weight:500;line-height:1}
+.kpi-value.teal{color:var(--teal)}
+.kpi-value.amber{color:var(--amber)}
+.kpi-value.red{color:var(--red)}
+.kpi-value.blue{color:var(--blue)}
+.kpi-value.purple{color:var(--purple)}
+.kpi-sub{font-size:11px;color:var(--text2);margin-top:6px}
+
+/* SECTION */
+.section{margin-bottom:24px}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.section-title{font-family:var(--font-head);font-size:15px;font-weight:600}
+.section-meta{font-size:11px;color:var(--text2)}
+
+/* TABLE */
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+table{width:100%;border-collapse:collapse}
+thead tr{background:var(--surface2)}
+th{padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border)}
+td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tbody tr:hover{background:rgba(255,255,255,.02)}
+.clickable{cursor:pointer}
+.clickable:hover td{background:rgba(0,201,167,.04)}
+
+/* BADGES */
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;font-family:var(--font-mono)}
+.badge-teal{background:var(--teal-glow);color:var(--teal);border:1px solid var(--teal-dim)}
+.badge-amber{background:rgba(240,165,0,.12);color:var(--amber);border:1px solid var(--amber-dim)}
+.badge-red{background:var(--red-dim);color:var(--red);border:1px solid #a01010}
+.badge-blue{background:var(--blue-dim);color:var(--blue);border:1px solid #1e5280}
+.badge-purple{background:var(--purple-dim);color:var(--purple);border:1px solid #6a3faa}
+.badge-gray{background:var(--surface3);color:var(--text2);border:1px solid var(--border)}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.overlay.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:12px;width:640px;max-width:95vw;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,.6)}
+.modal-head{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-family:var(--font-head);font-size:16px;font-weight:600}
+.modal-close{background:none;border:none;color:var(--text2);cursor:pointer;font-size:18px;line-height:1;padding:4px 8px;border-radius:4px}
+.modal-close:hover{color:var(--text);background:var(--surface3)}
+.modal-body{padding:24px;overflow-y:auto;flex:1}
+.modal-foot{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+
+/* FORM */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.form-row.single{grid-template-columns:1fr}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text2);font-weight:600}
+.form-control{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-family:var(--font-body);font-size:13px;transition:border .15s}
+.form-control:focus{outline:none;border-color:var(--teal)}
+.form-control option{background:var(--surface2)}
+textarea.form-control{resize:vertical;min-height:80px}
+
+/* TABS */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:20px}
+.tab{padding:10px 18px;cursor:pointer;font-size:13px;color:var(--text2);border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--teal);border-bottom-color:var(--teal)}
+
+/* COMMITTEE DETAIL */
+.detail-header{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:20px}
+.detail-name{font-family:var(--font-head);font-size:22px;font-weight:700;margin-bottom:8px}
+.detail-meta{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}
+.detail-meta-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)}
+.detail-meta-item strong{color:var(--text)}
+
+/* AGENDA CHECKLIST */
+.agenda-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface2);border-radius:6px;margin-bottom:6px;border:1px solid var(--border)}
+.agenda-check{width:16px;height:16px;accent-color:var(--teal);cursor:pointer}
+
+/* ATTENDANCE */
+.att-row{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid var(--border)}
+.att-row:last-child{border-bottom:none}
+.att-name{font-size:13px}
+.att-pos{font-size:11px;color:var(--text2)}
+.att-btns{display:flex;gap:4px}
+.att-btn{padding:3px 10px;border-radius:4px;border:1px solid var(--border);background:var(--surface3);color:var(--text2);cursor:pointer;font-size:11px;font-weight:500;transition:all .15s}
+.att-btn.present.active{background:var(--teal-glow);border-color:var(--teal);color:var(--teal)}
+.att-btn.absent.active{background:var(--red-dim);border-color:var(--red);color:var(--red)}
+.att-btn.excused.active{background:rgba(240,165,0,.12);border-color:var(--amber);color:var(--amber)}
+
+/* PROGRESS BAR */
+.prog-bar{height:6px;background:var(--surface3);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;transition:width .4s}
+.prog-fill.teal{background:var(--teal)}
+.prog-fill.amber{background:var(--amber)}
+.prog-fill.red{background:var(--red)}
+
+/* MOM PREVIEW */
+.mom-preview{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:20px;font-size:12px;line-height:1.8}
+.mom-header-block{text-align:center;border-bottom:2px solid var(--teal);padding-bottom:12px;margin-bottom:16px}
+.mom-institution{font-size:14px;font-weight:600;color:var(--teal)}
+.mom-doc-title{font-size:11px;color:var(--text2);letter-spacing:1px;text-transform:uppercase}
+.mom-field-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.mom-field{display:flex;gap:6px;font-size:12px}
+.mom-field-label{color:var(--text2);min-width:120px;font-weight:600}
+.mom-section-title{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--teal);font-weight:700;margin:14px 0 8px;border-bottom:1px solid var(--teal-dim);padding-bottom:4px}
+.mom-table{width:100%;border-collapse:collapse;margin-bottom:12px}
+.mom-table th{background:var(--surface3);padding:6px 10px;font-size:11px;text-align:left;border:1px solid var(--border)}
+.mom-table td{padding:6px 10px;border:1px solid var(--border);vertical-align:top}
+
+/* ALERT CARDS */
+.alert{display:flex;gap:12px;align-items:flex-start;padding:12px 16px;border-radius:8px;margin-bottom:8px;border-left:3px solid}
+.alert-warn{background:rgba(240,165,0,.08);border-left-color:var(--amber)}
+.alert-info{background:var(--blue-dim);border-left-color:var(--blue)}
+.alert-icon{font-size:16px;line-height:1.4}
+.alert-text{font-size:12px;line-height:1.5}
+.alert-title{font-weight:600;margin-bottom:2px}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:48px 24px;color:var(--text2)}
+.empty-icon{font-size:40px;margin-bottom:12px;opacity:.4}
+.empty-text{font-size:13px}
+
+/* GRID 2-col */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:900px){.grid2{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-logo">WICI · HCMS</div>
+    <div class="brand-sub">Committee Management</div>
+  </div>
+  <nav class="nav" id="nav">
+    <div class="nav-section">Overview</div>
+    <div class="nav-item active" data-page="dashboard"><span class="icon">◈</span>Dashboard</div>
+    <div class="nav-section">Committees</div>
+    <div class="nav-item" data-page="committees"><span class="icon">◫</span>All Committees</div>
+    <div class="nav-item" data-page="meetings"><span class="icon">◷</span>Meetings</div>
+    <div class="nav-section">Operations</div>
+    <div class="nav-item" data-page="actions"><span class="icon">◎</span>Action Tracker <span class="nav-badge" id="overdue-badge">0</span></div>
+    <div class="nav-item" data-page="mom"><span class="icon">◈</span>Record MOM</div>
+    <div class="nav-section">Governance</div>
+    <div class="nav-item" data-page="evaluation"><span class="icon">◬</span>Evaluation</div>
+    <div class="nav-item" data-page="reports"><span class="icon">◪</span>Reports</div>
+  </nav>
+  <div class="sidebar-footer">IPP.QM.001 · JCI 8th Ed · 2026</div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="page-title">Dashboard</div>
+    <span id="sync-indicator" style="font-size:11px;font-family:var(--font-mono);color:var(--amber)">● Connecting...</span><div class="topbar-actions" id="topbar-actions"></div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div class="kpi-grid" id="kpi-grid"></div>
+    <div class="grid2">
+      <div class="section">
+        <div class="section-header"><div class="section-title">Compliance Alerts</div></div>
+        <div id="alerts-panel"></div>
+      </div>
+      <div class="section">
+        <div class="section-header"><div class="section-title">Committee Overview</div></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Committee</th><th>Type</th><th>Freq.</th><th>JCI</th></tr></thead>
+            <tbody id="dash-committee-list"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-header"><div class="section-title">Recent Meetings</div></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Date</th><th>Committee</th><th>Status</th><th>Quorum</th><th>Actions Open</th></tr></thead>
+        <tbody id="recent-meetings"></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- COMMITTEES -->
+  <div class="page" id="page-committees">
+    <div class="section">
+      <div class="section-header">
+        <div>
+          <input class="form-control" id="search-committees" placeholder="Search committees…" style="width:260px">
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <select class="form-control btn-sm" id="filter-type" style="width:auto">
+            <option value="">All Types</option>
+            <option>Administrative</option><option>Clinical</option><option>Quality</option>
+            <option>Safety</option><option>Academic</option>
+          </select>
+        </div>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Code</th><th>Committee Name</th><th>Type</th><th>Frequency</th><th>Chair</th><th>JCI Ref</th><th>Members</th><th>Action</th></tr></thead>
+        <tbody id="committee-list"></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- COMMITTEE DETAIL -->
+  <div class="page" id="page-committee-detail">
+    <button class="btn" id="back-to-committees" style="margin-bottom:16px">← Back to Committees</button>
+    <div id="committee-detail-content"></div>
+  </div>
+
+  <!-- MEETINGS -->
+  <div class="page" id="page-meetings">
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Meeting Schedule</div>
+        <button class="btn btn-primary" id="btn-add-meeting">+ Schedule Meeting</button>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Date</th><th>Committee</th><th>Status</th><th>Quorum Met</th><th>Attendance</th><th>Actions</th></tr></thead>
+        <tbody id="meeting-list"></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="page" id="page-actions">
+    <div class="section">
+      <div class="section-header">
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-sm" data-act="filter-action" data-val="All">All</button>
+          <button class="btn btn-sm" data-act="filter-action" data-val="Open">Open</button>
+          <button class="btn btn-sm" data-act="filter-action" data-val="In-Progress">In Progress</button>
+          <button class="btn btn-sm" data-act="filter-action" data-val="Overdue">Overdue</button>
+          <button class="btn btn-sm" data-act="filter-action" data-val="Completed">Completed</button>
+        </div>
+        <button class="btn btn-primary" data-act="add-action-global">+ Add Action</button>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Task</th><th>Committee</th><th>Owner</th><th>Due Date</th><th>Priority</th><th>Status</th><th>Progress</th><th>Edit</th></tr></thead>
+        <tbody id="action-list"></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- RECORD MOM -->
+  <div class="page" id="page-mom">
+    <div class="grid2">
+      <div>
+        <div class="section">
+          <div class="section-title" style="margin-bottom:14px">Meeting of Minutes — Recording Form</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Committee</label>
+              <select class="form-control" id="mom-committee" onchange="momCommitteeChange()"></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Meeting Date</label>
+              <input type="date" class="form-control" id="mom-date"/>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Meeting No.</label>
+              <input type="text" class="form-control" id="mom-no" placeholder="e.g. IPC/2026/01"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Venue</label>
+              <input type="text" class="form-control" id="mom-venue" placeholder="e.g. Conference Room A"/>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Start Time</label>
+              <input type="time" class="form-control" id="mom-start"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">End Time</label>
+              <input type="time" class="form-control" id="mom-end"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title" style="margin-bottom:14px">Attendance</div>
+          <div class="table-wrap" id="mom-attendance-wrap">
+            <div class="empty"><div class="empty-icon">👥</div><div class="empty-text">Select a committee to load members</div></div>
+          </div>
+          <div id="quorum-status" style="margin-top:10px;font-size:12px;color:var(--text2)"></div>
+        </div>
+
+        <div class="section">
+          <div class="section-title" style="margin-bottom:14px">Agenda Items</div>
+          <div id="mom-agenda-list"></div>
+          <div style="margin-top:8px;display:flex;gap:8px">
+            <input class="form-control" id="new-agenda-item" placeholder="Add agenda item…" style="flex:1"/>
+            <button class="btn btn-primary btn-sm" onclick="addAgendaItem()">+ Add</button>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title" style="margin-bottom:14px">Decisions & Discussions</div>
+          <div id="mom-decisions-list"></div>
+          <button class="btn btn-primary btn-sm" onclick="addDecision()" style="margin-top:8px">+ Add Decision</button>
+        </div>
+
+        <div class="section">
+          <div class="section-title" style="margin-bottom:14px">Action Items</div>
+          <div id="mom-actions-list"></div>
+          <button class="btn btn-primary btn-sm" onclick="addMomAction()" style="margin-top:8px">+ Add Action Item</button>
+        </div>
+
+        <div class="section">
+          <div class="section-title" style="margin-bottom:14px">Next Meeting</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Proposed Date</label>
+              <input type="date" class="form-control" id="mom-next-date"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Proposed Time</label>
+              <input type="time" class="form-control" id="mom-next-time"/>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn btn-primary" onclick="saveMOM()">💾 Save MOM</button>
+          <button class="btn" onclick="generateMOMPreview()">👁 Preview MOM</button>
+          <button class="btn" onclick="exportMOMWord()">⬇ Export</button>
+        </div>
+      </div>
+
+      <!-- MOM Preview -->
+      <div>
+        <div class="section-title" style="margin-bottom:14px">MOM Preview — IPP.QM.001.F03</div>
+        <div id="mom-preview-panel">
+          <div class="empty"><div class="empty-icon">📄</div><div class="empty-text">Fill the form and click Preview MOM</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EVALUATION -->
+  <div class="page" id="page-evaluation">
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Biannual Committee Evaluation</div>
+        <button class="btn btn-primary" onclick="openEvalModal()">+ New Evaluation</button>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Committee</th><th>Period</th><th>Schedule Compliance</th><th>Attendance</th><th>Decision Compliance</th><th>Overall</th><th>Status</th></tr></thead>
+        <tbody id="eval-list"></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- REPORTS -->
+  <div class="page" id="page-reports">
+    <div class="kpi-grid" id="report-cards"></div>
+    <div class="section">
+      <div class="section-header"><div class="section-title">Executive Summary</div></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Committee</th><th>Type</th><th>Meetings Held</th><th>Actions Open</th><th>Actions Overdue</th><th>Avg Attendance</th><th>Health</th></tr></thead>
+        <tbody id="exec-summary-list"></tbody>
+      </table></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button class="btn btn-primary" onclick="exportCSV()">⬇ Export CSV</button>
+    </div>
+  </div>
+
+</div><!-- /main -->
+</div><!-- /shell -->
+
+<!-- MODALS -->
+<div class="overlay" id="overlay">
+  <div class="modal" id="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modal-title">Modal</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-foot" id="modal-foot"></div>
+  </div>
+</div>
+
+<script>
+// ====================== REAL COMMITTEE DATA FROM TORs ======================
+const COMMITTEES = [
+  {id:"C01",code:"EMC",name:"Executive Management Committee",type:"Administrative",frequency:"Monthly",quorum:60,jci:"GLD",chair:"Chief Executive Officer",cochair:"Chief Medical Officer",coordinator:"Quality Director",agendaItems:["Follow up previous committee decision","KPI presentation","Any rising issue"],members:[{pos:"Chief Executive Officer",role:"Chairperson",name:"Dr. Haider Hamza Al Abedi"},{pos:"Chief Medical Officer",role:"Co-Chair",name:"Dr. Hassanien Muiz"},{pos:"Quality Director",role:"Coordinator",name:"Dr. Mohammed Adel"},{pos:"Chief Operation Officer",role:"Member",name:"Dr. Omer Zeyad"},{pos:"Head of Surgery",role:"Member",name:"Dr. Rabiee Hanna"},{pos:"Head of Scientific Office",role:"Member",name:"Dr. Fawaz Allosh"}]},
+  {id:"C02",code:"Senior",name:"Senior Management Committee",type:"Administrative",frequency:"Monthly",quorum:60,jci:"GLD",chair:"Chief Executive Officer",cochair:"Chief Medical Officer",coordinator:"Quality Director",agendaItems:["Follow up previous committee decision","KPI presentation","Any rising issue"],members:[{pos:"Chief Executive Officer",role:"Chairperson",name:"Dr. Haider Hamza Al Abedi"},{pos:"Chief Medical Officer",role:"Co-Chair",name:"Dr. Hassanien Muiz"},{pos:"Chief Operation Officer",role:"Member",name:"Dr. Omer Zeyad"},{pos:"Nursing Director",role:"Member",name:""},{pos:"Quality Director",role:"Member",name:"Dr. Mohammed Adel"},{pos:"Head of Human Resources",role:"Member",name:""},{pos:"Head of Financial",role:"Member",name:""},{pos:"Head of IT",role:"Member",name:""}]},
+  {id:"C03",code:"MEC",name:"Medical Executive Council",type:"Clinical",frequency:"Monthly",quorum:60,jci:"GLD.09",chair:"Chief Medical Officer",cochair:"Head of Adult Oncology",coordinator:"Resident Physician",agendaItems:["Follow up previous committee decision","KPI presentation","Any rising issue"],members:[{pos:"Chief Medical Officer",role:"Chairperson",name:"Dr. Hassanien Muiz"},{pos:"Head of Adult Oncology",role:"Co-Chair",name:""},{pos:"Resident Physician",role:"Coordinator",name:""},{pos:"Head of Paediatric Oncology",role:"Member",name:""},{pos:"Head of Surgical Department",role:"Member",name:""},{pos:"Quality Director",role:"Member",name:"Dr. Mohammed Adel"},{pos:"Nursing Director",role:"Member",name:""},{pos:"Head of Nuclear",role:"Member",name:""},{pos:"Head of Radiology",role:"Member",name:""},{pos:"Head of Intervention Radiology",role:"Member",name:""},{pos:"Head of Infection Control",role:"Member",name:""},{pos:"Head of Radiotherapy",role:"Member",name:""},{pos:"Head of Medical Record",role:"Member",name:""},{pos:"Head of Laboratory",role:"Member",name:""},{pos:"Head of ICU & Anaesthesia",role:"Member",name:""},{pos:"OPD & ER Representative",role:"Member",name:""}]},
+  {id:"C04",code:"Q&PSC",name:"Quality & Patient Safety Committee",type:"Quality",frequency:"Quarterly",quorum:60,jci:"QPS",chair:"Chief Executive Officer",cochair:"Quality Director",coordinator:"Quality Specialist",agendaItems:["Follow up previous committee decision","KPI presentation","Incident Report","Improvement project and risk management","Audit finding and Training","Any rising issue"],members:[{pos:"Chief Executive Officer",role:"Chairperson",name:"Dr. Haider Hamza Al Abedi"},{pos:"Quality Director",role:"Co-Chair",name:"Dr. Mohammed Adel"},{pos:"Quality Specialist",role:"Coordinator",name:""},{pos:"Chief Medical Officer",role:"Member",name:"Dr. Hassanien Muiz"},{pos:"Chief Operation Officer",role:"Member",name:"Dr. Omer Zeyad"},{pos:"Nursing Director",role:"Member",name:""},{pos:"Head of Pharmacy",role:"Member",name:""},{pos:"Head of Paediatric Oncology",role:"Member",name:""},{pos:"Head of Adult Oncology",role:"Member",name:""},{pos:"Head of OPD",role:"Member",name:""},{pos:"Head of Surgery",role:"Member",name:""},{pos:"Head of Radiology",role:"Member",name:""},{pos:"Head of Lab",role:"Member",name:""},{pos:"Head of Facility",role:"Member",name:""},{pos:"Head of Infection Control",role:"Member",name:""},{pos:"Head of Safety",role:"Member",name:""}]},
+  {id:"C05",code:"IPC",name:"Infection Prevention & Control Committee",type:"Clinical",frequency:"Quarterly",quorum:60,jci:"PCI",chair:"Chief Medical Officer",cochair:"IPC Manager",coordinator:"Infection Control Specialist",agendaItems:["Follow up previous committee decision","KPI presentation","Improvement project and risk management","Audit finding and Training","Any rising issue"],members:[{pos:"Chief Medical Officer",role:"Chairperson",name:"Dr. Hassanien Muiz"},{pos:"IPC Manager",role:"Co-Chair",name:"Dr. Manal Mamdouh"},{pos:"Infection Control Specialist",role:"Coordinator",name:""},{pos:"Nursing Director",role:"Member",name:""},{pos:"Quality Director",role:"Member",name:"Dr. Mohammed Adel"},{pos:"Head of Safety & Occupational Health",role:"Member",name:""},{pos:"Head of OR and Surgery",role:"Member",name:""},{pos:"Pharmacy Representative",role:"Member",name:""},{pos:"Oncology Adult Representative",role:"Member",name:""},{pos:"Oncology Paediatric Representative",role:"Member",name:""},{pos:"Infectious Diseases Manager",role:"Member",name:""},{pos:"Microbiology Representative",role:"Member",name:""},{pos:"Facility Director or Representative",role:"Member",name:""},{pos:"ICU Representative",role:"Member",name:""},{pos:"Housekeeping Manager",role:"Member",name:""}]},
+  {id:"C06",code:"PTC",name:"Pharmacy & Therapeutics Committee",type:"Clinical",frequency:"Quarterly",quorum:60,jci:"MMU",chair:"Head of Pharmacy",cochair:"DIC Manager",coordinator:"Clinical Pharmacist",agendaItems:["Follow up previous committee decision","KPI presentation","Any rising issue"],members:[{pos:"Head of Pharmacy",role:"Chairperson",name:""},{pos:"DIC Manager",role:"Co-Chair",name:""},{pos:"Clinical Pharmacist",role:"Coordinator",name:""},{pos:"Quality Representative",role:"Member",name:""},{pos:"Head of Infectious Disease",role:"Member",name:""},{pos:"Supply Chain Representative",role:"Member",name:""},{pos:"Nursing Director",role:"Member",name:""},{pos:"Head of Paediatric Oncology",role:"Member",name:""},{pos:"Head of Adult Oncology",role:"Member",name:""},{pos:"Head of Surgery",role:"Member",name:""},{pos:"Microbiology Representative",role:"Member",name:""},{pos:"ICU Representative",role:"Member",name:""}]},
+  {id:"C07",code:"FMS",name:"Facility Management & Safety Committee",type:"Safety",frequency:"Monthly",quorum:60,jci:"FMS",chair:"Chief Executive Officer",cochair:"Head of Facility Management",coordinator:"Quality Specialist",agendaItems:["Follow up previous committee decision","KPI presentation","Any rising issue"],members:[{pos:"Chief Executive Officer",role:"Chairperson",name:"Dr. Haider Hamza Al Abedi"},{pos:"Head of Facility Management",role:"Co-Chair",name:"Eng. Ahmed Abd Al Aziz"},{pos:"Quality Specialist",role:"Coordinator",name:""},{pos:"Chief Medical Officer",role:"Member",name:"Dr. Hassanien Muiz"},{pos:"Chief Operation Officer",role:"Member",name:"Dr. Omer Zeyad"},{pos:"Quality Director",role:"Member",name:"Dr. Mohammed Adel"},{pos:"Head of Infection Control",role:"Member",name:""},{pos:"Head of IT",role:"Member",name:""},{pos:"Director of Nursing",role:"Member",name:""},{pos:"Head of Housekeeping",role:"Member",name:""},{pos:"Head of Biomedical Engineering",role:"Member",name:""},{pos:"Head of OHS",role:"Member",name:""},{pos:"Head of Security",role:"Member",name:""},{pos:"Head of Supply Chain",role:"Member",name:""}]},
+  {id:"C08",code:"CBC",name:"Code Blue & RRT Committee",type:"Clinical",frequency:"Quarterly",quorum:60,jci:"COP",chair:"Chief Medical Officer",cochair:"Head of ICU Department",coordinator:"Head of Nursing Department",agendaItems:["Follow up previous committee decision","KPI presentation","Any rising issue"],members:[{pos:"Chief Medical Officer",role:"Chairperson",name:"Dr. Hassanien Muiz"},{pos:"Head of ICU Department",role:"Co-Chair",name:""},{pos:"Head of Nursing Department",role:"Coordinator",name:""},{pos:"Quality Specialist",role:"Member",name:""},{pos:"Head of Anaesthesia",role:"Member",name:""},{pos:"Pharmacy Representative",role:"Member",name:""},{pos:"ICU Head Nurse",role:"Member",name:""},{pos:"Emergency Department Head Nurse",role:"Member",name:""}]},
+  {id:"C09",code:"CPC",name:"Credentialing & Privileging Committee",type:"Administrative",frequency:"Quarterly",quorum:60,jci:"SQE",chair:"Head of Surgery Department",cochair:"Human Resources Director",coordinator:"Medical Representative",agendaItems:["Follow up previous committee decision","KPI presentation","Any rising issue"],members:[{pos:"Head of Surgery Department",role:"Chairperson",name:""},{pos:"Human Resources Director",role:"Co-Chair",name:"Ms. Enaam Omer"},{pos:"Medical Representative",role:"Coordinator",name:""},{pos:"Quality Director",role:"Member",name:"Dr. Mohammed Adel"},{pos:"Chief Medical Officer",role:"Member",name:"Dr. Hassanien Muiz"},{pos:"Head of Paediatric Oncology",role:"Member",name:""},{pos:"Head of Adult Oncology",role:"Member",name:""},{pos:"Nursing Director",role:"Member",name:""}]},
+  {id:"C10",code:"Ethics",name:"Ethics Committee",type:"Administrative",frequency:"Ad-hoc",quorum:60,jci:"GLD",chair:"Chief Medical Officer",cochair:"Human Resources Director",coordinator:"Quality Director",agendaItems:["Ethical issue/concern raised","Discussion and deliberation","Decision and action plan"],members:[{pos:"Chief Medical Officer",role:"Chair",name:"Dr. Hassanien Muiz"},{pos:"Human Resource Director",role:"Co-Chair",name:"Ms. Enaam Omer"},{pos:"Quality Director",role:"Coordinator",name:"Dr. Mohammed Adel"},{pos:"Head of Adult Oncology",role:"Member",name:""},{pos:"Chief Operation Officer",role:"Member",name:"Dr. Omer Zeyad"},{pos:"Legal Consultant",role:"Member",name:""}]},
+  {id:"C11",code:"SC",name:"Scientific Committee",type:"Academic",frequency:"Quarterly",quorum:60,jci:"SQE",chair:"Chief Scientific Officer",cochair:"Head of Paediatric Oncology",coordinator:"Scientific Office Education & Training Officer",agendaItems:["Follow up previous committee decision","Any rising issue"],members:[{pos:"Chief Scientific Officer",role:"Chairperson",name:"Dr. Fawaz Alloosh"},{pos:"Head of Paediatric Oncology",role:"Co-Chair",name:""},{pos:"Scientific Office Education & Training Officer",role:"Coordinator",name:""},{pos:"Chief Medical Officer",role:"Member",name:"Dr. Hassanien Muiz"},{pos:"Head of Radiotherapy Department",role:"Member",name:""},{pos:"Head of Nuclear Medicine Department",role:"Member",name:""},{pos:"Head of Surgical Oncology Department",role:"Member",name:""},{pos:"Head of Pharmacy Department",role:"Member",name:""},{pos:"Head of Medical Statistics & Archiving",role:"Member",name:""},{pos:"Scientific Office Data Management Officer",role:"Member",name:""},{pos:"Pathology Representative",role:"Member",name:""},{pos:"Adult Oncology Representative",role:"Member",name:""},{pos:"Quality Specialist",role:"Member",name:""}]},
+  {id:"C12",code:"M&M",name:"Mortality & Morbidity Review Committee",type:"Clinical",frequency:"Quarterly",quorum:60,jci:"QPS",chair:"Head of Paediatric Oncology",cochair:"Head of ICU",coordinator:"Resident Physician",agendaItems:["Follow up previous committee decision","KPI of Mortality and adverse event","Case discussion if available","Any rising issue"],members:[{pos:"Head of Paediatric Oncology",role:"Chairperson",name:""},{pos:"Head of ICU",role:"Co-Chair",name:""},{pos:"Resident Physician",role:"Coordinator",name:""},{pos:"Chief Medical Officer",role:"Member",name:"Dr. Hassanien Muiz"},{pos:"Clinical Pharmacist",role:"Member",name:""},{pos:"Quality Representatives",role:"Member",name:""}]},
+  {id:"C13",code:"MDT",name:"Multi-Disciplinary Team",type:"Clinical",frequency:"Weekly",quorum:60,jci:"COP.01.02",chair:"Rotatory (per case specialty)",cochair:"",coordinator:"MDT Coordinator",agendaItems:["Follow up previous committee decision","Case decisions","Any rising issue"],members:[{pos:"Medical Oncologist",role:"Member (Adult MDT)",name:""},{pos:"Surgical Oncologist",role:"Member (Adult MDT)",name:""},{pos:"Radiation Oncologist",role:"Member (Adult MDT)",name:""},{pos:"Pathologist",role:"Member (All MDT)",name:""},{pos:"Radiologist",role:"Member (All MDT)",name:""},{pos:"Clinical Pharmacist",role:"Member (All MDT)",name:""},{pos:"Clinical Nurse",role:"Member (All MDT)",name:""},{pos:"Paediatric Oncologist",role:"Member (Paediatric MDT)",name:""}]},
+  {id:"C14",code:"Lab",name:"Laboratory & Blood Transfusion Committee",type:"Clinical",frequency:"Quarterly",quorum:60,jci:"AOP",chair:"Head of Laboratory Department",cochair:"Histopathology Specialist",coordinator:"Laboratory Supervisor",agendaItems:["Follow up previous committee decision","KPI presentation","Improvement project and risk management","Audit finding and Training","Any rising issue"],members:[{pos:"Head of Laboratory Department",role:"Chairperson",name:"Dr. Mai Gad Al Sayed"},{pos:"Histopathology Specialist",role:"Co-Chair",name:""},{pos:"Laboratory Supervisor",role:"Coordinator",name:""},{pos:"Head of OR",role:"Member",name:""},{pos:"IPC Manager",role:"Member",name:"Dr. Manal Mamdouh"},{pos:"Nursing Director",role:"Member",name:""},{pos:"Quality Director",role:"Member",name:"Dr. Mohammed Adel"},{pos:"Quality Specialist",role:"Member",name:""},{pos:"Chief Medical Officer",role:"Member",name:"Dr. Hassanien Muiz"},{pos:"Adult Oncology Representative",role:"Member",name:""},{pos:"Paediatric Oncology Representative",role:"Member",name:""}]},
+  {id:"C15",code:"PCC",name:"Patient-Centred Care Committee",type:"Quality",frequency:"Quarterly",quorum:60,jci:"PFR",chair:"Chief Executive Officer",cochair:"Chief Medical Officer",coordinator:"Patient Relations Manager",agendaItems:["Follow up previous committee decision","KPI presentation","Any rising issue"],members:[{pos:"Chief Executive Officer",role:"Chairperson",name:"Dr. Haider Hamza Al Abedi"},{pos:"Chief Medical Officer",role:"Co-Chair",name:"Dr. Hassanien Muiz"},{pos:"Patient Relations Manager",role:"Coordinator",name:""},{pos:"Chief Operation Officer",role:"Member",name:"Dr. Omer Zeyad"},{pos:"Nursing Director",role:"Member",name:""},{pos:"Quality Director",role:"Member",name:"Dr. Mohammed Adel"},{pos:"Quality Specialist",role:"Member",name:""},{pos:"Head of Surgery",role:"Member",name:""},{pos:"Paediatric Oncology Representative",role:"Member",name:""},{pos:"Head of Adult Oncology",role:"Member",name:""},{pos:"Laboratory Representative",role:"Member",name:""},{pos:"Radiology Representative",role:"Member",name:""}]},
+  {id:"C16",code:"HIC",name:"Health Informatics Committee",type:"Administrative",frequency:"Quarterly",quorum:60,jci:"MOI",chair:"Chief Operational Officer",cochair:"Head of IT NW & Infrastructure",coordinator:"Quality Specialist",agendaItems:["Follow up previous committee decision","KPI presentation","Any rising issue"],members:[{pos:"Chief Operational Officer",role:"Chairperson",name:"Dr. Omer Zeyad"},{pos:"Head of IT NW & Infrastructure",role:"Co-Chair",name:""},{pos:"Quality Specialist",role:"Coordinator",name:""},{pos:"Pharmacy Representative",role:"Member",name:""},{pos:"Laboratory Department Representative",role:"Member",name:""},{pos:"Head of OPD",role:"Member",name:""},{pos:"Paediatric Oncology Representative",role:"Member",name:""},{pos:"Head of Medical Archiving & Statistics",role:"Member",name:""},{pos:"Patient Relations Manager",role:"Member",name:""},{pos:"Surgery Department Representative",role:"Member",name:""},{pos:"Head of Radiology Department",role:"Member",name:""},{pos:"Nursing Director",role:"Member",name:""},{pos:"Adult Oncology Representative",role:"Member",name:""}]},
+  {id:"C17",code:"MRC",name:"Medical Records Committee",type:"Administrative",frequency:"Quarterly",quorum:60,jci:"MOI",chair:"Chief Medical Officer",cochair:"Head of Medical Archive Department",coordinator:"Paediatric Oncology Representative",agendaItems:["Follow up previous committee decision","KPI presentation","Any rising issue"],members:[{pos:"Chief Medical Officer",role:"Chairperson",name:"Dr. Hassanien Muiz"},{pos:"Head of Medical Archive Department",role:"Co-Chair",name:""},{pos:"Paediatric Oncology Representative",role:"Coordinator",name:""},{pos:"IT & HIS Representative",role:"Member",name:""},{pos:"Pharmacy Representative",role:"Member",name:""},{pos:"Quality Director",role:"Member",name:"Dr. Mohammed Adel"},{pos:"Adult Oncology Representative",role:"Member",name:""},{pos:"Head of OPD",role:"Member",name:""},{pos:"Paediatric Oncology Representative",role:"Member",name:""},{pos:"Surgery Representative",role:"Member",name:""},{pos:"Nursing Director / Supervisor",role:"Member",name:""}]}
+];
+
+// ====================== STATE ======================
+
+// ====================== SYNC WITH SERVER ======================
+const SYNC_INTERVAL = 8000;
+let lastSyncTime = 0;
+let syncStatus = "idle";
+
+async function loadFromServer() {
+  try {
+    setSyncStatus("loading");
+    const r = await fetch("/api/data");
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    const data = await r.json();
+    db.meetings = data.meetings || [];
+    db.actions = data.actions || [];
+    db.evaluations = data.evaluations || [];
+    db.moms = data.moms || [];
+    const allIds = [...db.meetings,...db.actions,...db.evaluations,...db.moms]
+      .map(x=>parseInt((x.id||"0").replace("N",""))).filter(n=>!isNaN(n));
+    if(allIds.length>0) _nid = Math.max(...allIds)+1;
+    lastSyncTime = Date.now();
+    setSyncStatus("idle");
+    renderPage(currentPage());
+    updateOverdueBadge();
+  } catch(e) {
+    setSyncStatus("error");
+    console.error("Sync error:",e);
+  }
+}
+
+async function saveToServer() {
+  try {
+    setSyncStatus("saving");
+    await fetch("/api/data",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({meetings:db.meetings,actions:db.actions,evaluations:db.evaluations,moms:db.moms})
+    });
+    setSyncStatus("idle");
+  } catch(e) {
+    setSyncStatus("error");
+    console.error("Save error:",e);
+  }
+}
+
+function setSyncStatus(s) {
+  syncStatus=s;
+  const el=document.getElementById("sync-indicator");
+  if(!el) return;
+  const map={
+    idle:{t:"● Synced",c:"var(--teal)"},
+    saving:{t:"↑ Saving...",c:"var(--amber)"},
+    loading:{t:"↓ Loading...",c:"var(--blue)"},
+    error:{t:"✕ Sync error",c:"var(--red)"}
+  };
+  const s2=map[s]||map.idle;
+  el.textContent=s2.t; el.style.color=s2.c;
+}
+
+function currentPage() {
+  const a=document.querySelector(".page.active");
+  return a ? a.id.replace("page-","") : "dashboard";
+}
+
+setInterval(function(){ if(syncStatus!=="saving") loadFromServer(); }, SYNC_INTERVAL);
+
+let db = {
+  meetings: [],
+  actions: [],
+  evaluations: [],
+  moms: [],
+  actionFilter: 'All',
+  momState: {
+    agendaItems: [],
+    decisions: [],
+    actions: [],
+    attendance: {}
+  }
+};
+
+let _nid = 1;
+const nid = () => 'N' + (_nid++);
+
+// ====================== HELPERS ======================
+const $ = id => document.getElementById(id);
+const el = (tag, cls, html) => { const e=document.createElement(tag); if(cls) e.className=cls; if(html!==undefined) e.innerHTML=html; return e; };
+const fmtDate = d => d ? new Date(d+'T12:00:00').toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+const today = () => new Date().toISOString().slice(0,10);
+const badge = (text, cls) => `<span class="badge badge-${cls}">${text}</span>`;
+const freqColor = f => ({Monthly:'teal',Quarterly:'blue',Weekly:'purple','Ad-hoc':'amber'}[f]||'gray');
+const typeColor = t => ({Administrative:'blue',Clinical:'teal',Quality:'amber',Safety:'red',Academic:'purple'}[t]||'gray');
+const statusColor = s => ({Open:'amber','In-Progress':'blue',Completed:'teal',Overdue:'red'}[s]||'gray');
+const commByID = id => COMMITTEES.find(c=>c.id===id)||null;
+const commName = id => { const c=commByID(id); return c?c.code:'—'; };
+
+function getOverdueCount() {
+  const t = today();
+  return db.actions.filter(a=>a.status!=='Completed' && a.dueDate && a.dueDate<t).length;
+}
+
+// ====================== NAVIGATION ======================
+function nav(page, title) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const p = $('page-'+page);
+  if(p) p.classList.add('active');
+  const n = document.querySelector(`.nav-item[data-page="${page}"]`);
+  if(n) n.classList.add('active');
+  $('page-title').textContent = title||page;
+  const acts = $('topbar-actions');
+  acts.innerHTML = '';
+  renderPage(page);
+}
+
+document.querySelectorAll('.nav-item[data-page]').forEach(n=>{
+  n.addEventListener('click',()=>{
+    const page=n.dataset.page;
+    const titles={dashboard:'Dashboard',committees:'Committees',meetings:'Meeting Schedule',actions:'Action Tracker',mom:'Record Minutes of Meeting',evaluation:'Committee Evaluation',reports:'Executive Reports'};
+    nav(page, titles[page]||page);
+  });
+});
+
+// ====================== RENDER ======================
+function renderPage(page) {
+  if(page==='dashboard') renderDashboard();
+  if(page==='committees') renderCommittees();
+  if(page==='meetings') renderMeetings();
+  if(page==='actions') renderActions();
+  if(page==='evaluation') renderEvaluation();
+  if(page==='reports') renderReports();
+  if(page==='mom') renderMOMPage();
+  updateOverdueBadge();
+}
+
+function updateOverdueBadge() {
+  const b = $('overdue-badge');
+  const c = getOverdueCount();
+  b.textContent = c;
+  b.style.display = c>0?'':'none';
+}
+
+// DASHBOARD
+function renderDashboard() {
+  const t = today();
+  const totalMeetings = db.meetings.length;
+  const held = db.meetings.filter(m=>m.status==='Held').length;
+  const compliance = totalMeetings>0 ? Math.round(held/totalMeetings*100) : 0;
+  const total = db.actions.length;
+  const completed = db.actions.filter(a=>a.status==='Completed').length;
+  const overdue = db.actions.filter(a=>a.status!=='Completed'&&a.dueDate&&a.dueDate<t).length;
+  const closure = total>0?Math.round(completed/total*100):0;
+
+  $('kpi-grid').innerHTML = `
+    <div class="kpi-card teal"><div class="kpi-label">Active Committees</div><div class="kpi-value teal">${COMMITTEES.length}</div><div class="kpi-sub">17 per TOR 2026</div></div>
+    <div class="kpi-card blue"><div class="kpi-label">Meetings Held</div><div class="kpi-value blue">${held}/${totalMeetings}</div><div class="kpi-sub">${compliance}% compliance</div></div>
+    <div class="kpi-card amber"><div class="kpi-label">Open Actions</div><div class="kpi-value amber">${db.actions.filter(a=>a.status!=='Completed').length}</div><div class="kpi-sub">${total} total actions</div></div>
+    <div class="kpi-card red"><div class="kpi-label">Overdue Actions</div><div class="kpi-value red">${overdue}</div><div class="kpi-sub">Require immediate attention</div></div>
+    <div class="kpi-card teal"><div class="kpi-label">Closure Rate</div><div class="kpi-value teal">${closure}%</div><div class="kpi-sub">${completed} completed</div></div>
+  `;
+
+  // Alerts
+  const alerts = [];
+  if(overdue>0) alerts.push({type:'warn',icon:'⚠️',title:`${overdue} Overdue Action Item${overdue>1?'s':''}`,text:'Review and update or reassign overdue tasks in the Action Tracker.'});
+  const monthlyComms = COMMITTEES.filter(c=>c.frequency==='Monthly');
+  if(monthlyComms.length>0) alerts.push({type:'info',icon:'ℹ️',title:`${monthlyComms.length} Monthly Committees`,text:'EMC, Senior Management, MEC, and FMS require monthly scheduling. Ensure meetings are planned.'});
+  if(alerts.length===0) alerts.push({type:'info',icon:'✅',title:'All systems normal',text:'No critical alerts at this time.'});
+  $('alerts-panel').innerHTML = alerts.map(a=>`<div class="alert alert-${a.type}"><div class="alert-icon">${a.icon}</div><div class="alert-text"><div class="alert-title">${a.title}</div>${a.text}</div></div>`).join('');
+
+  // Committee list
+  $('dash-committee-list').innerHTML = COMMITTEES.map(c=>`
+    <tr class="clickable" onclick="openCommitteeDetail('${c.id}')">
+      <td><strong>${c.code}</strong><br><span style="font-size:11px;color:var(--text2)">${c.name}</span></td>
+      <td>${badge(c.type,typeColor(c.type))}</td>
+      <td>${badge(c.frequency,freqColor(c.frequency))}</td>
+      <td><span style="font-size:11px;font-family:var(--font-mono);color:var(--text2)">${c.jci}</span></td>
+    </tr>`).join('');
+
+  // Recent meetings
+  const recent = [...db.meetings].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
+  $('recent-meetings').innerHTML = recent.length>0 ? recent.map(m=>{
+    const c=commByID(m.committeeId);
+    const open=db.actions.filter(a=>a.meetingId===m.id&&a.status!=='Completed').length;
+    return `<tr><td>${fmtDate(m.date)}</td><td>${c?c.code+' — '+c.name:'—'}</td><td>${badge(m.status,m.status==='Held'?'teal':m.status==='Scheduled'?'blue':'gray')}</td><td>${m.quorumMet?badge('Yes','teal'):badge('No','red')}</td><td>${badge(open,'amber')}</td></tr>`;
+  }).join('') : '<tr><td colspan="5" style="text-align:center;color:var(--text2);padding:20px">No meetings recorded yet</td></tr>';
+}
+
+// COMMITTEES
+function renderCommittees() {
+  const search = ($('search-committees')||{value:''}).value.toLowerCase();
+  const typeF = ($('filter-type')||{value:''}).value;
+  const list = COMMITTEES.filter(c=>{
+    if(search && !c.name.toLowerCase().includes(search) && !c.code.toLowerCase().includes(search)) return false;
+    if(typeF && c.type!==typeF) return false;
+    return true;
+  });
+  $('committee-list').innerHTML = list.map(c=>`
+    <tr class="clickable" onclick="openCommitteeDetail('${c.id}')">
+      <td><span class="badge badge-gray" style="font-family:var(--font-mono)">${c.code}</span></td>
+      <td><strong>${c.name}</strong></td>
+      <td>${badge(c.type,typeColor(c.type))}</td>
+      <td>${badge(c.frequency,freqColor(c.frequency))}</td>
+      <td style="font-size:12px">${c.chair}</td>
+      <td><span style="font-size:11px;font-family:var(--font-mono);color:var(--text2)">${c.jci}</span></td>
+      <td><span style="font-family:var(--font-mono);color:var(--teal)">${c.members.length}</span></td>
+      <td><button class="btn btn-sm btn-primary" onclick="event.stopPropagation();openCommitteeDetail('${c.id}')">Open →</button></td>
+    </tr>`).join('');
+
+  setTimeout(()=>{
+    const s=$('search-committees'); if(s) s.oninput=renderCommittees;
+    const f=$('filter-type'); if(f) f.onchange=renderCommittees;
+  },50);
+}
+
+// COMMITTEE DETAIL
+function openCommitteeDetail(cid) {
+  const c = commByID(cid);
+  if(!c) return;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  $('page-committee-detail').classList.add('active');
+  $('page-title').textContent = c.name;
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+
+  const cMeetings = db.meetings.filter(m=>m.committeeId===cid);
+  const cActions = db.actions.filter(a=>a.committeeId===cid);
+  const t = today();
+
+  $('committee-detail-content').innerHTML = `
+    <div class="detail-header">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px">
+        <div>
+          <div style="font-size:11px;font-family:var(--font-mono);color:var(--text2);margin-bottom:4px">IPP.QM.001 · ${c.jci}</div>
+          <div class="detail-name">${c.name}</div>
+          <div style="display:flex;gap:8px;margin-top:8px">${badge(c.type,typeColor(c.type))} ${badge(c.frequency,freqColor(c.frequency))} ${badge('Quorum: '+c.quorum+'%','gray')}</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary btn-sm" onclick="openScheduleMeeting('${cid}')">+ Meeting</button>
+          <button class="btn btn-sm" data-act="add-action-committee" data-cid="${cid}">+ Action</button>
+        </div>
+      </div>
+      <div class="detail-meta">
+        <div class="detail-meta-item">👤 Chair: <strong>${c.chair}</strong></div>
+        <div class="detail-meta-item">👥 Co-Chair: <strong>${c.cochair||'—'}</strong></div>
+        <div class="detail-meta-item">📋 Coordinator: <strong>${c.coordinator||'—'}</strong></div>
+        <div class="detail-meta-item">👤 Members: <strong>${c.members.length}</strong></div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="switchDetailTab('members','${cid}',this)">Members (${c.members.length})</div>
+      <div class="tab" onclick="switchDetailTab('meetings','${cid}',this)">Meetings (${cMeetings.length})</div>
+      <div class="tab" onclick="switchDetailTab('actions','${cid}',this)">Actions (${cActions.length})</div>
+      <div class="tab" onclick="switchDetailTab('agenda','${cid}',this)">Agenda Items</div>
+    </div>
+    <div id="detail-tab-content"></div>
+  `;
+  switchDetailTab('members', cid, document.querySelector('.tab.active'));
+  $('back-to-committees').onclick = ()=>nav('committees','Committees');
+}
+
+function switchDetailTab(tab, cid, el) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  if(el) el.classList.add('active');
+  const c = commByID(cid);
+  const wrap = $('detail-tab-content');
+  if(tab==='members') {
+    wrap.innerHTML = `<div class="table-wrap"><table>
+      <thead><tr><th>Position</th><th>Role</th><th>Name</th></tr></thead>
+      <tbody>${c.members.map(m=>`<tr><td>${m.pos}</td><td>${badge(m.role, m.role==='Chairperson'||m.role==='Chair'?'teal':m.role.includes('Co')?'blue':m.role==='Coordinator'?'amber':'gray')}</td><td>${m.name||'<span style="color:var(--text3)">To be assigned</span>'}</td></tr>`).join('')}</tbody>
+    </table></div>`;
+  } else if(tab==='meetings') {
+    const ms = db.meetings.filter(m=>m.committeeId===cid);
+    wrap.innerHTML = ms.length>0?`<div class="table-wrap"><table>
+      <thead><tr><th>Date</th><th>Status</th><th>Quorum</th><th>Notes</th></tr></thead>
+      <tbody>${ms.map(m=>`<tr><td>${fmtDate(m.date)}</td><td>${badge(m.status,m.status==='Held'?'teal':m.status==='Scheduled'?'blue':'gray')}</td><td>${m.quorumMet?badge('Met','teal'):badge('Not Met','red')}</td><td style="font-size:12px;color:var(--text2)">${m.notes||'—'}</td></tr>`).join('')}</tbody>
+    </table></div>`:`<div class="empty"><div class="empty-icon">📅</div><div class="empty-text">No meetings recorded</div></div>`;
+  } else if(tab==='actions') {
+    const as = db.actions.filter(a=>a.committeeId===cid);
+    const t=today();
+    wrap.innerHTML = `<div style="margin-bottom:10px;text-align:right"><button class="btn btn-primary btn-sm" data-act="add-action-committee" data-cid="${cid}">+ Add Action</button></div>`+(as.length>0?`<div class="table-wrap"><table>
+      <thead><tr><th>Task</th><th>Owner</th><th>Due</th><th>Priority</th><th>Status</th><th>Progress</th></tr></thead>
+      <tbody>${as.map(a=>`<tr><td>${a.task}</td><td style="font-size:12px">${a.owner}</td><td style="font-family:var(--font-mono);font-size:12px">${fmtDate(a.dueDate)}</td><td>${badge(a.priority,a.priority==='High'?'red':a.priority==='Medium'?'amber':'blue')}</td><td>${badge(a.status!=='Completed'&&a.dueDate&&a.dueDate<t?'Overdue':a.status,statusColor(a.status!=='Completed'&&a.dueDate&&a.dueDate<t?'Overdue':a.status))}</td><td><div class="prog-bar" style="width:80px"><div class="prog-fill ${a.progress>=80?'teal':a.progress>=40?'amber':'red'}" style="width:${a.progress||0}%"></div></div></td></tr>`).join('')}</tbody>
+    </table></div>`:`<div class="empty"><div class="empty-icon">✅</div><div class="empty-text">No actions yet</div></div>`);
+  } else if(tab==='agenda') {
+    wrap.innerHTML = `<div class="section-meta" style="margin-bottom:12px">Standard agenda per TOR — used as default when recording MOM</div>
+    ${c.agendaItems.map((item,i)=>`<div class="agenda-item"><span style="font-family:var(--font-mono);font-size:11px;color:var(--text2)">${String(i+1).padStart(2,'0')}</span><span style="flex:1">${item}</span></div>`).join('')}`;
+  }
+}
+
+// MEETINGS
+function renderMeetings() {
+  const t = today();
+  $('meeting-list').innerHTML = db.meetings.length>0 ? db.meetings.sort((a,b)=>b.date.localeCompare(a.date)).map(m=>{
+    const c=commByID(m.committeeId);
+    const att=m.attendance||{};
+    const present=Object.values(att).filter(v=>v==='Present').length;
+    const total=c?c.members.length:0;
+    const pct=total>0?Math.round(present/total*100):0;
+    return `<tr>
+      <td style="font-family:var(--font-mono);font-size:12px">${fmtDate(m.date)}</td>
+      <td><strong>${c?c.code:'—'}</strong><br><span style="font-size:11px;color:var(--text2)">${c?c.name:'—'}</span></td>
+      <td>${badge(m.status,m.status==='Held'?'teal':m.status==='Scheduled'?'blue':'gray')}</td>
+      <td>${m.quorumMet?badge('Met','teal'):badge('Not Met','red')}</td>
+      <td><span style="font-size:12px">${present}/${total} (${pct}%)</span></td>
+      <td><button class="btn btn-sm" onclick="editMeeting('${m.id}')">Edit</button></td>
+    </tr>`;
+  }).join('') : '<tr><td colspan="6" style="text-align:center;color:var(--text2);padding:24px">No meetings scheduled. Click "+ Schedule Meeting" to begin.</td></tr>';
+
+  $('btn-add-meeting').onclick = () => openScheduleMeeting(null);
+}
+
+function openScheduleMeeting(cid) {
+  openModal('Schedule Meeting', `
+    <div class="form-row"><div class="form-group"><label class="form-label">Committee</label>
+      <select class="form-control" id="f_comm">${COMMITTEES.map(c=>`<option value="${c.id}"${c.id===cid?'selected':''}>${c.code} — ${c.name}</option>`).join('')}</select>
+    </div><div class="form-group"><label class="form-label">Date</label>
+      <input type="date" class="form-control" id="f_date" value="${today()}"/>
+    </div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Status</label>
+      <select class="form-control" id="f_status"><option>Scheduled</option><option>Held</option><option>Cancelled</option></select>
+    </div><div class="form-group"><label class="form-label">Quorum Met</label>
+      <select class="form-control" id="f_quorum"><option value="1">Yes</option><option value="0">No</option></select>
+    </div></div>
+    <div class="form-row single"><div class="form-group"><label class="form-label">Notes</label>
+      <textarea class="form-control" id="f_notes" placeholder="Brief notes…"></textarea>
+    </div></div>`,
+    [{label:'Save Meeting',cls:'btn-primary',fn:()=>{
+      db.meetings.push({id:nid(),committeeId:$('f_comm').value,date:$('f_date').value,status:$('f_status').value,quorumMet:$('f_quorum').value==='1',notes:$('f_notes').value,attendance:{}});
+      closeModal(); saveToServer(); renderPage('meetings'); updateOverdueBadge();
+    }}]
+  );
+}
+
+function editMeeting(mid) {
+  const m = db.meetings.find(x=>x.id===mid); if(!m) return;
+  openModal('Edit Meeting',`
+    <div class="form-row"><div class="form-group"><label class="form-label">Status</label>
+      <select class="form-control" id="f_status"><option${m.status==='Scheduled'?' selected':''}>Scheduled</option><option${m.status==='Held'?' selected':''}>Held</option><option${m.status==='Cancelled'?' selected':''}>Cancelled</option></select>
+    </div><div class="form-group"><label class="form-label">Quorum Met</label>
+      <select class="form-control" id="f_quorum"><option value="1"${m.quorumMet?' selected':''}>Yes</option><option value="0"${!m.quorumMet?' selected':''}>No</option></select>
+    </div></div>
+    <div class="form-row single"><div class="form-group"><label class="form-label">Notes</label>
+      <textarea class="form-control" id="f_notes">${m.notes||''}</textarea>
+    </div></div>`,
+    [{label:'Update',cls:'btn-primary',fn:()=>{m.status=$('f_status').value;m.quorumMet=$('f_quorum').value==='1';m.notes=$('f_notes').value;closeModal();saveToServer();renderPage('meetings');}},
+     {label:'Delete',cls:'btn-danger',fn:()=>{db.meetings=db.meetings.filter(x=>x.id!==mid);closeModal();renderPage('meetings');}}]
+  );
+}
+
+// ACTIONS
+function renderActions() {
+  const t = today();
+  let list = db.actions.map(a=>({...a,isOverdue:a.status!=='Completed'&&a.dueDate&&a.dueDate<t}));
+  if(db.actionFilter!=='All') {
+    list = list.filter(a=> db.actionFilter==='Overdue' ? a.isOverdue : a.status===db.actionFilter);
+  }
+  $('action-list').innerHTML = list.length>0 ? list.map(a=>`
+    <tr>
+      <td style="max-width:200px">${a.task}</td>
+      <td>${badge(commName(a.committeeId),'gray')}</td>
+      <td style="font-size:12px">${a.owner}</td>
+      <td style="font-family:var(--font-mono);font-size:12px">${fmtDate(a.dueDate)}</td>
+      <td>${badge(a.priority,a.priority==='High'?'red':a.priority==='Medium'?'amber':'blue')}</td>
+      <td>${badge(a.isOverdue?'Overdue':a.status,statusColor(a.isOverdue?'Overdue':a.status))}</td>
+      <td><div style="display:flex;align-items:center;gap:8px"><div class="prog-bar" style="width:60px"><div class="prog-fill ${a.progress>=80?'teal':a.progress>=40?'amber':'red'}" style="width:${a.progress||0}%"></div></div><span style="font-size:11px;font-family:var(--font-mono)">${a.progress||0}%</span></div></td>
+      <td><button class="btn btn-sm" onclick="editAction('${a.id}')">Edit</button></td>
+    </tr>`).join('') : `<tr><td colspan="8" style="text-align:center;color:var(--text2);padding:24px">No actions${db.actionFilter!=='All'?' matching filter':''}</td></tr>`;
+
+  document.querySelectorAll('[data-act="filter-action"]').forEach(b=>{
+    b.classList.toggle('btn-primary', b.dataset.val===db.actionFilter);
+  });
+}
+
+function openActionForm(cid) {
+  openModal('Add Action Item',`
+    <div class="form-row single"><div class="form-group"><label class="form-label">Committee</label>
+      <select class="form-control" id="f_comm">${COMMITTEES.map(c=>`<option value="${c.id}"${c.id===cid?'selected':''}>${c.code} — ${c.name}</option>`).join('')}</select>
+    </div></div>
+    <div class="form-row single"><div class="form-group"><label class="form-label">Task Description</label>
+      <textarea class="form-control" id="f_task" placeholder="Describe the action item…"></textarea>
+    </div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Owner / Responsible</label>
+      <input class="form-control" id="f_owner" placeholder="Name or position…"/>
+    </div><div class="form-group"><label class="form-label">Due Date</label>
+      <input type="date" class="form-control" id="f_due"/>
+    </div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Priority</label>
+      <select class="form-control" id="f_prio"><option>High</option><option selected>Medium</option><option>Low</option></select>
+    </div><div class="form-group"><label class="form-label">Status</label>
+      <select class="form-control" id="f_st"><option selected>Open</option><option>In-Progress</option><option>Completed</option></select>
+    </div></div>
+    <div class="form-row single"><div class="form-group"><label class="form-label">Progress %</label>
+      <input type="range" class="form-control" id="f_prog" min="0" max="100" value="0" style="padding:8px 0"/>
+    </div></div>`,
+    [{label:'Save Action',cls:'btn-primary',fn:()=>{
+      const task=($('f_task').value||'').trim();
+      if(!task){alert('Please enter a task description');return;}
+      db.actions.push({id:nid(),committeeId:$('f_comm').value,task,owner:$('f_owner').value,dueDate:$('f_due').value,priority:$('f_prio').value,status:$('f_st').value,progress:parseInt($('f_prog').value)||0});
+      db.actionFilter='All';
+      closeModal(); saveToServer(); renderPage('actions'); updateOverdueBadge();
+    }}]
+  );
+}
+
+function editAction(aid) {
+  const a = db.actions.find(x=>x.id===aid); if(!a) return;
+  openModal('Edit Action',`
+    <div class="form-row single"><div class="form-group"><label class="form-label">Task</label>
+      <textarea class="form-control" id="f_task">${a.task}</textarea>
+    </div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Owner</label>
+      <input class="form-control" id="f_owner" value="${a.owner}"/>
+    </div><div class="form-group"><label class="form-label">Due Date</label>
+      <input type="date" class="form-control" id="f_due" value="${a.dueDate}"/>
+    </div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Priority</label>
+      <select class="form-control" id="f_prio"><option${a.priority==='High'?' selected':''}>High</option><option${a.priority==='Medium'?' selected':''}>Medium</option><option${a.priority==='Low'?' selected':''}>Low</option></select>
+    </div><div class="form-group"><label class="form-label">Status</label>
+      <select class="form-control" id="f_st"><option${a.status==='Open'?' selected':''}>Open</option><option${a.status==='In-Progress'?' selected':''}>In-Progress</option><option${a.status==='Completed'?' selected':''}>Completed</option></select>
+    </div></div>
+    <div class="form-row single"><div class="form-group"><label class="form-label">Progress %</label>
+      <input type="range" class="form-control" id="f_prog" min="0" max="100" value="${a.progress||0}"/>
+    </div></div>`,
+    [{label:'Update',cls:'btn-primary',fn:()=>{a.task=$('f_task').value;a.owner=$('f_owner').value;a.dueDate=$('f_due').value;a.priority=$('f_prio').value;a.status=$('f_st').value;a.progress=parseInt($('f_prog').value)||0;closeModal();saveToServer();renderPage('actions');updateOverdueBadge();}},
+     {label:'Delete',cls:'btn-danger',fn:()=>{db.actions=db.actions.filter(x=>x.id!==aid);closeModal();renderPage('actions');updateOverdueBadge();}}]
+  );
+}
+
+// MOM PAGE
+function renderMOMPage() {
+  // Populate committee select
+  const sel = $('mom-committee');
+  if(sel && !sel.options.length) {
+    COMMITTEES.forEach(c=>{
+      const o=document.createElement('option');
+      o.value=c.id; o.textContent=c.code+' — '+c.name;
+      sel.appendChild(o);
+    });
+  }
+  // Set today's date
+  const dateInput = $('mom-date');
+  if(dateInput && !dateInput.value) dateInput.value = today();
+}
+
+function momCommitteeChange() {
+  const cid = $('mom-committee').value;
+  const c = commByID(cid); if(!c) return;
+  db.momState = {agendaItems:[...c.agendaItems],decisions:[],actions:[],attendance:{}};
+  c.members.forEach(m=>{ db.momState.attendance[m.pos]='Present'; });
+  // Generate meeting number suggestion
+  const mo = $('mom-no');
+  if(mo && !mo.value) {
+    const cnt = db.meetings.filter(m=>m.committeeId===cid).length+1;
+    const yr = new Date().getFullYear();
+    mo.value = `${c.code}/${yr}/${String(cnt).padStart(2,'0')}`;
+  }
+  renderMOMAttendance(c);
+  renderMOMAgenda();
+  renderMOMDecisions();
+  renderMOMActions();
+}
+
+function renderMOMAttendance(c) {
+  const wrap = $('mom-attendance-wrap');
+  const att = db.momState.attendance;
+  let html = c.members.map(m=>`
+    <div class="att-row">
+      <div><div class="att-name">${m.name||m.pos}</div><div class="att-pos">${m.role}${m.name?' — '+m.pos:''}</div></div>
+      <div class="att-btns">
+        <button class="att-btn present ${att[m.pos]==='Present'?'active':''}" onclick="setAtt('${m.pos}','Present',this)">Present</button>
+        <button class="att-btn absent ${att[m.pos]==='Absent'?'active':''}" onclick="setAtt('${m.pos}','Absent',this)">Absent</button>
+        <button class="att-btn excused ${att[m.pos]==='Excused'?'active':''}" onclick="setAtt('${m.pos}','Excused',this)">Excused</button>
+      </div>
+    </div>`).join('');
+  wrap.innerHTML = html;
+  updateQuorumStatus(c);
+}
+
+function setAtt(pos, status, btn) {
+  db.momState.attendance[pos]=status;
+  const row=btn.closest('.att-row');
+  row.querySelectorAll('.att-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const cid=$('mom-committee').value; const c=commByID(cid); if(c) updateQuorumStatus(c);
+}
+
+function updateQuorumStatus(c) {
+  const total=c.members.length;
+  const present=Object.values(db.momState.attendance).filter(v=>v==='Present').length;
+  const pct=Math.round(present/total*100);
+  const met=pct>=c.quorum;
+  $('quorum-status').innerHTML=`Attendance: <strong>${present}/${total} (${pct}%)</strong> — Quorum (${c.quorum}%): ${met?'<span style="color:var(--teal)">✓ Met</span>':'<span style="color:var(--red)">✗ Not Met</span>'}`;
+}
+
+function renderMOMAgenda() {
+  const list=$('mom-agenda-list');
+  list.innerHTML=db.momState.agendaItems.map((item,i)=>`
+    <div class="agenda-item">
+      <input type="checkbox" class="agenda-check" id="ag_${i}" checked/>
+      <label for="ag_${i}" style="flex:1;cursor:pointer">${item}</label>
+      <button onclick="removeAgendaItem(${i})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px">✕</button>
+    </div>`).join('');
+}
+
+function addAgendaItem() {
+  const inp=$('new-agenda-item');
+  const v=(inp.value||'').trim(); if(!v) return;
+  db.momState.agendaItems.push(v); inp.value='';
+  renderMOMAgenda();
+}
+function removeAgendaItem(i) { db.momState.agendaItems.splice(i,1); renderMOMAgenda(); }
+
+function renderMOMDecisions() {
+  const list=$('mom-decisions-list');
+  list.innerHTML=db.momState.decisions.map((d,i)=>`
+    <div style="display:flex;gap:8px;margin-bottom:8px;align-items:flex-start">
+      <span style="font-family:var(--font-mono);font-size:11px;color:var(--text2);margin-top:10px">${String(i+1).padStart(2,'0')}</span>
+      <input class="form-control" style="flex:1" value="${d.text}" onchange="db.momState.decisions[${i}].text=this.value" placeholder="Decision or discussion point…"/>
+      <select class="form-control" style="width:120px" onchange="db.momState.decisions[${i}].type=this.value">
+        <option${d.type==='Decision'?' selected':''}>Decision</option>
+        <option${d.type==='Discussion'?' selected':''}>Discussion</option>
+        <option${d.type==='Information'?' selected':''}>Information</option>
+      </select>
+      <button onclick="db.momState.decisions.splice(${i},1);renderMOMDecisions()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;margin-top:8px">✕</button>
+    </div>`).join('');
+}
+function addDecision() { db.momState.decisions.push({text:'',type:'Decision'}); renderMOMDecisions(); }
+
+function renderMOMActions() {
+  const list=$('mom-actions-list');
+  const cid=$('mom-committee').value;
+  const c=commByID(cid);
+  const memberOptions=c?c.members.map(m=>`<option>${m.name||m.pos}</option>`).join(''):'';
+  list.innerHTML=db.momState.actions.map((a,i)=>`
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:8px">
+      <div class="form-row" style="margin-bottom:8px">
+        <div class="form-group"><label class="form-label">Action</label>
+          <input class="form-control" value="${a.task}" onchange="db.momState.actions[${i}].task=this.value" placeholder="Action description…"/>
+        </div>
+        <div class="form-group"><label class="form-label">Responsible</label>
+          <input class="form-control" list="member-list-${i}" value="${a.owner}" onchange="db.momState.actions[${i}].owner=this.value" placeholder="Owner…"/>
+          <datalist id="member-list-${i}">${memberOptions}</datalist>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Due Date</label>
+          <input type="date" class="form-control" value="${a.dueDate}" onchange="db.momState.actions[${i}].dueDate=this.value"/>
+        </div>
+        <div class="form-group"><label class="form-label">Priority</label>
+          <select class="form-control" onchange="db.momState.actions[${i}].priority=this.value"><option${a.priority==='High'?' selected':''}>High</option><option${a.priority==='Medium'?' selected':''}>Medium</option><option${a.priority==='Low'?' selected':''}>Low</option></select>
+        </div>
+      </div>
+      <div style="text-align:right"><button onclick="db.momState.actions.splice(${i},1);renderMOMActions()" class="btn btn-sm" style="border-color:var(--red-dim);color:var(--red)">Remove</button></div>
+    </div>`).join('');
+}
+function addMomAction() { db.momState.actions.push({task:'',owner:'',dueDate:'',priority:'Medium'}); renderMOMActions(); }
+
+function saveMOM() {
+  const cid=$('mom-committee').value;
+  const date=$('mom-date').value;
+  if(!date){alert('Please select a meeting date');return;}
+  const c=commByID(cid);
+  const present=Object.values(db.momState.attendance).filter(v=>v==='Present').length;
+  const total=c?c.members.length:1;
+  const quorumMet=(present/total*100)>=(c?c.quorum:60);
+  // Save meeting
+  const meetingId=nid();
+  db.meetings.push({id:meetingId,committeeId:cid,date,status:'Held',quorumMet,notes:$('mom-no').value,attendance:{...db.momState.attendance},venue:$('mom-venue').value,startTime:$('mom-start').value,endTime:$('mom-end').value,decisions:[...db.momState.decisions]});
+  // Save actions
+  db.momState.actions.forEach(a=>{
+    if(a.task) db.actions.push({id:nid(),committeeId:cid,meetingId,task:a.task,owner:a.owner,dueDate:a.dueDate,priority:a.priority,status:'Open',progress:0});
+  });
+  db.moms.push({id:meetingId,committeeId:cid,date,no:$('mom-no').value,agendaItems:[...db.momState.agendaItems],decisions:[...db.momState.decisions],actions:[...db.momState.actions],attendance:{...db.momState.attendance},nextDate:$('mom-next-date').value,nextTime:$('mom-next-time').value,venue:$('mom-venue').value});
+  saveToServer(); alert('MOM saved successfully! '+db.momState.actions.length+' action item(s) added to tracker.');
+  updateOverdueBadge();
+}
+
+function generateMOMPreview() {
+  const cid=$('mom-committee').value;
+  const c=commByID(cid);
+  const date=$('mom-date').value;
+  const att=db.momState.attendance;
+  const present=c?c.members.filter(m=>att[m.pos]==='Present'):[];
+  const absent=c?c.members.filter(m=>att[m.pos]==='Absent'):[];
+  const excused=c?c.members.filter(m=>att[m.pos]==='Excused'):[];
+
+  $('mom-preview-panel').innerHTML=`<div class="mom-preview">
+    <div class="mom-header-block">
+      <div class="mom-institution">Warith International Cancer Institute</div>
+      <div style="font-size:12px;margin:4px 0">Quality Management Department</div>
+      <div class="mom-doc-title">Minutes of Meeting — IPP.QM.001.F03</div>
+    </div>
+    <div class="mom-field-grid">
+      <div class="mom-field"><span class="mom-field-label">Committee:</span><span>${c?c.name:'—'}</span></div>
+      <div class="mom-field"><span class="mom-field-label">Meeting No.:</span><span>${$('mom-no').value||'—'}</span></div>
+      <div class="mom-field"><span class="mom-field-label">Date:</span><span>${fmtDate(date)}</span></div>
+      <div class="mom-field"><span class="mom-field-label">Venue:</span><span>${$('mom-venue').value||'—'}</span></div>
+      <div class="mom-field"><span class="mom-field-label">Start Time:</span><span>${$('mom-start').value||'—'}</span></div>
+      <div class="mom-field"><span class="mom-field-label">End Time:</span><span>${$('mom-end').value||'—'}</span></div>
+      <div class="mom-field"><span class="mom-field-label">Chair:</span><span>${c?c.chair:'—'}</span></div>
+      <div class="mom-field"><span class="mom-field-label">JCI Ref:</span><span>${c?c.jci:'—'}</span></div>
+    </div>
+
+    <div class="mom-section-title">Attendees</div>
+    <table class="mom-table"><thead><tr><th>Name / Position</th><th>Role</th><th>Status</th></tr></thead>
+    <tbody>${c?c.members.map(m=>`<tr><td>${m.name||m.pos}</td><td>${m.role}</td><td style="color:${att[m.pos]==='Present'?'var(--teal)':att[m.pos]==='Absent'?'var(--red)':'var(--amber)'}">${att[m.pos]||'Present'}</td></tr>`).join(''):''}</tbody></table>
+
+    <div class="mom-section-title">Agenda</div>
+    <table class="mom-table"><thead><tr><th>#</th><th>Item</th></tr></thead>
+    <tbody>${db.momState.agendaItems.map((item,i)=>`<tr><td style="width:30px">${i+1}</td><td>${item}</td></tr>`).join('')}</tbody></table>
+
+    <div class="mom-section-title">Decisions & Discussions</div>
+    ${db.momState.decisions.length>0?`<table class="mom-table"><thead><tr><th>#</th><th>Content</th><th>Type</th></tr></thead>
+    <tbody>${db.momState.decisions.map((d,i)=>`<tr><td style="width:30px">${i+1}</td><td>${d.text}</td><td>${d.type}</td></tr>`).join('')}</tbody></table>`:'<p style="color:var(--text2);font-size:12px">No decisions recorded.</p>'}
+
+    <div class="mom-section-title">Action Items</div>
+    ${db.momState.actions.length>0?`<table class="mom-table"><thead><tr><th>#</th><th>Action</th><th>Responsible</th><th>Due Date</th><th>Priority</th></tr></thead>
+    <tbody>${db.momState.actions.map((a,i)=>`<tr><td style="width:30px">${i+1}</td><td>${a.task}</td><td>${a.owner}</td><td>${fmtDate(a.dueDate)}</td><td>${a.priority}</td></tr>`).join('')}</tbody></table>`:'<p style="color:var(--text2);font-size:12px">No action items.</p>'}
+
+    <div class="mom-section-title">Next Meeting</div>
+    <div class="mom-field"><span class="mom-field-label">Proposed Date:</span><span>${fmtDate($('mom-next-date').value)||'TBD'}</span></div>
+    <div class="mom-field"><span class="mom-field-label">Proposed Time:</span><span>${$('mom-next-time').value||'TBD'}</span></div>
+
+    <div style="margin-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div style="border-top:1px solid var(--border);padding-top:8px">
+        <div style="font-size:11px;color:var(--text2)">Chairperson Signature</div>
+        <div style="margin-top:4px;font-size:12px">${c?c.chair:''}</div>
+      </div>
+      <div style="border-top:1px solid var(--border);padding-top:8px">
+        <div style="font-size:11px;color:var(--text2)">Coordinator Signature</div>
+        <div style="margin-top:4px;font-size:12px">${c?c.coordinator:''}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function exportMOMWord() {
+  generateMOMPreview();
+  const content = $('mom-preview-panel').innerHTML;
+  const blob=new Blob([`<html><head><meta charset="UTF-8"><style>body{font-family:Arial,sans-serif;font-size:12px;padding:30px}.mom-institution{font-size:14px;font-weight:bold}.mom-table{width:100%;border-collapse:collapse}.mom-table th,.mom-table td{border:1px solid #ccc;padding:6px 10px}th{background:#f5f5f5}.mom-section-title{font-weight:bold;text-transform:uppercase;font-size:11px;letter-spacing:1px;margin:14px 0 6px;border-bottom:2px solid #333;padding-bottom:3px}.mom-field{margin:3px 0}.mom-field-label{font-weight:bold;display:inline-block;min-width:130px}</style></head><body>${content}</body></html>`],{type:'application/msword'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`MOM_${($('mom-committee').value||'').replace(':','')}_${$('mom-date').value||today()}.doc`;a.click();
+}
+
+// EVALUATION
+function renderEvaluation() {
+  $('eval-list').innerHTML = db.evaluations.length>0 ? db.evaluations.map(e=>{
+    const c=commByID(e.committeeId);
+    const overall=Math.round((e.scheduleCompliance+e.attendance+e.decisionCompliance)/3);
+    return `<tr>
+      <td>${c?c.code+' — '+c.name:'—'}</td>
+      <td style="font-size:12px">${e.period}</td>
+      <td><div class="prog-bar" style="width:80px;display:inline-block"><div class="prog-fill ${e.scheduleCompliance>=80?'teal':'amber'}" style="width:${e.scheduleCompliance}%"></div></div> ${e.scheduleCompliance}%</td>
+      <td><div class="prog-bar" style="width:80px;display:inline-block"><div class="prog-fill ${e.attendance>=80?'teal':'amber'}" style="width:${e.attendance}%"></div></div> ${e.attendance}%</td>
+      <td><div class="prog-bar" style="width:80px;display:inline-block"><div class="prog-fill ${e.decisionCompliance>=80?'teal':'amber'}" style="width:${e.decisionCompliance}%"></div></div> ${e.decisionCompliance}%</td>
+      <td><strong style="font-family:var(--font-mono)">${overall}%</strong></td>
+      <td>${badge(overall>=80?'Good':overall>=60?'Fair':'Poor',overall>=80?'teal':overall>=60?'amber':'red')}</td>
+    </tr>`;
+  }).join('') : '<tr><td colspan="7" style="text-align:center;color:var(--text2);padding:24px">No evaluations recorded. Click "+ New Evaluation" to begin biannual review.</td></tr>';
+}
+
+function openEvalModal() {
+  openModal('Committee Evaluation',`
+    <div class="form-row single"><div class="form-group"><label class="form-label">Committee</label>
+      <select class="form-control" id="f_comm">${COMMITTEES.map(c=>`<option value="${c.id}">${c.code} — ${c.name}</option>`).join('')}</select>
+    </div></div>
+    <div class="form-row single"><div class="form-group"><label class="form-label">Evaluation Period</label>
+      <input class="form-control" id="f_period" placeholder="e.g. H1 2026, Jan–Jun 2026"/>
+    </div></div>
+    <div class="form-row single"><div class="form-group"><label class="form-label">Schedule Compliance % <small style="color:var(--text2)">(meetings held vs planned)</small></label>
+      <input type="range" class="form-control" id="f_sc" min="0" max="100" value="75"/>
+    </div></div>
+    <div class="form-row single"><div class="form-group"><label class="form-label">Average Attendance %</label>
+      <input type="range" class="form-control" id="f_att" min="0" max="100" value="80"/>
+    </div></div>
+    <div class="form-row single"><div class="form-group"><label class="form-label">Decision Compliance %</label>
+      <input type="range" class="form-control" id="f_dc" min="0" max="100" value="70"/>
+    </div></div>
+    <div class="form-row single"><div class="form-group"><label class="form-label">Recommendations</label>
+      <textarea class="form-control" id="f_rec" placeholder="Committee function review notes…"></textarea>
+    </div></div>`,
+    [{label:'Save Evaluation',cls:'btn-primary',fn:()=>{
+      db.evaluations.push({id:nid(),committeeId:$('f_comm').value,period:$('f_period').value,scheduleCompliance:parseInt($('f_sc').value),attendance:parseInt($('f_att').value),decisionCompliance:parseInt($('f_dc').value),recommendations:$('f_rec').value});
+      closeModal(); saveToServer(); renderPage('evaluation');
+    }}]
+  );
+}
+
+// REPORTS
+function renderReports() {
+  const t=today();
+  const held=db.meetings.filter(m=>m.status==='Held').length;
+  const overdue=db.actions.filter(a=>a.status!=='Completed'&&a.dueDate&&a.dueDate<t).length;
+  const completed=db.actions.filter(a=>a.status==='Completed').length;
+  const total=db.actions.length;
+
+  $('report-cards').innerHTML=`
+    <div class="kpi-card teal"><div class="kpi-label">Total Committees</div><div class="kpi-value teal">${COMMITTEES.length}</div></div>
+    <div class="kpi-card blue"><div class="kpi-label">Total Meetings</div><div class="kpi-value blue">${db.meetings.length}</div><div class="kpi-sub">${held} held</div></div>
+    <div class="kpi-card amber"><div class="kpi-label">Total Actions</div><div class="kpi-value amber">${total}</div><div class="kpi-sub">${completed} completed</div></div>
+    <div class="kpi-card red"><div class="kpi-label">Overdue</div><div class="kpi-value red">${overdue}</div></div>
+    <div class="kpi-card purple"><div class="kpi-label">Evaluations</div><div class="kpi-value purple">${db.evaluations.length}</div></div>
+  `;
+
+  $('exec-summary-list').innerHTML=COMMITTEES.map(c=>{
+    const ms=db.meetings.filter(m=>m.committeeId===c.id);
+    const as=db.actions.filter(a=>a.committeeId===c.id);
+    const open=as.filter(a=>a.status!=='Completed').length;
+    const od=as.filter(a=>a.status!=='Completed'&&a.dueDate&&a.dueDate<t).length;
+    const held=ms.filter(m=>m.status==='Held');
+    const avgAtt=held.length>0?Math.round(held.reduce((sum,m)=>{const p=Object.values(m.attendance||{}).filter(v=>v==='Present').length;return sum+(p/c.members.length*100);},0)/held.length):0;
+    const health=od>2?'Poor':open>5?'Fair':'Good';
+    return `<tr>
+      <td><strong>${c.code}</strong><br><span style="font-size:11px;color:var(--text2)">${c.name}</span></td>
+      <td>${badge(c.type,typeColor(c.type))}</td>
+      <td><span style="font-family:var(--font-mono)">${held.length}/${ms.length}</span></td>
+      <td><span style="font-family:var(--font-mono);color:var(--amber)">${open}</span></td>
+      <td><span style="font-family:var(--font-mono);color:var(--red)">${od}</span></td>
+      <td>${held.length>0?avgAtt+'%':'—'}</td>
+      <td>${badge(health,health==='Good'?'teal':health==='Fair'?'amber':'red')}</td>
+    </tr>`;
+  }).join('');
+}
+
+function exportCSV() {
+  const t=today();
+  const rows=[['Code','Committee','Type','Frequency','JCI Ref','Members','Meetings','Held','Open Actions','Overdue Actions']];
+  COMMITTEES.forEach(c=>{
+    const ms=db.meetings.filter(m=>m.committeeId===c.id);
+    const as=db.actions.filter(a=>a.committeeId===c.id);
+    rows.push([c.code,c.name,c.type,c.frequency,c.jci,c.members.length,ms.length,ms.filter(m=>m.status==='Held').length,as.filter(a=>a.status!=='Completed').length,as.filter(a=>a.status!=='Completed'&&a.dueDate&&a.dueDate<t).length]);
+  });
+  const csv=rows.map(r=>r.join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='WICI_Committee_Report_'+today()+'.csv';a.click();
+}
+
+// ====================== MODAL ======================
+function openModal(title, body, buttons) {
+  $('modal-title').textContent=title;
+  $('modal-body').innerHTML=body;
+  $('modal-foot').innerHTML='';
+  buttons.forEach(b=>{
+    const btn=document.createElement('button');
+    btn.className='btn '+(b.cls||'');
+    btn.textContent=b.label;
+    btn.onclick=b.fn;
+    $('modal-foot').appendChild(btn);
+  });
+  const cancelBtn=document.createElement('button');
+  cancelBtn.className='btn'; cancelBtn.textContent='Cancel';
+  cancelBtn.onclick=closeModal;
+  $('modal-foot').insertBefore(cancelBtn,$('modal-foot').firstChild);
+  $('overlay').classList.add('open');
+}
+function closeModal() { $('overlay').classList.remove('open'); }
+$('overlay').addEventListener('click',e=>{if(e.target===$('overlay'))closeModal();});
+
+// ====================== EVENT DELEGATION ======================
+document.addEventListener('click', e => {
+  const btn = e.target.closest('[data-act]');
+  if(!btn) return;
+  const act=btn.dataset.act;
+  if(act==='filter-action'){db.actionFilter=btn.dataset.val;renderActions();}
+  if(act==='add-action-global'){openActionForm(null);}
+  if(act==='add-action-committee'){openActionForm(btn.dataset.cid);}
+});
+
+// ====================== INIT ======================
+loadFromServer();
+</script>
+</body>
+</html>
